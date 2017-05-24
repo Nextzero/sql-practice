@@ -10,9 +10,7 @@ CREATE TABLE `course` (
   `cno` int(11) NOT NULL,
   `cname` varchar(20) NOT NULL,
   `tno` int(11) NOT NULL,
-  PRIMARY KEY  (`cno`),
-  KEY `FK_course_teacher` (`tno`),
-  CONSTRAINT `FK_course_teacher` FOREIGN KEY (`tno`) REFERENCES `teacher` (`tno`)
+  PRIMARY KEY  (`cno`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 /*Data for the table `course` */
@@ -26,11 +24,7 @@ DROP TABLE IF EXISTS `sc`;
 CREATE TABLE `sc` (
   `sno` int(11) NOT NULL,
   `cno` int(11) NOT NULL,
-  `score` int(11) NOT NULL,
-  KEY `FK_sc_course` (`cno`),
-  KEY `FK_sc_student` (`sno`),
-  CONSTRAINT `FK_sc_student` FOREIGN KEY (`sno`) REFERENCES `student` (`sno`),
-  CONSTRAINT `FK_sc_course` FOREIGN KEY (`cno`) REFERENCES `course` (`cno`)
+  `score` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 /*Data for the table `sc` */
