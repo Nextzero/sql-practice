@@ -1,27 +1,41 @@
-
+﻿
 /*
-–1、查询课程1的成绩 比 课程2的成绩 高 的所有学生的学号.
-
+1.查询课程1的成绩 比 课程2的成绩 高 的所有学生的学号.
+tips：子查询与左连接的效率比较
 */
 SELECT
-	*
+	a.*
 FROM sc AS a
 LEFT JOIN sc b ON a.sno=b.sno
 WHERE a.cno=1 AND b.cno=2 AND a.score>b.score;
 
 
 /*
-–2、查询平均成绩大于60分的同学的学号和平均成绩；
+2.查询平均成绩大于60分的同学的学号和平均成绩
 */
-
-
+SELECT
+      sno,
+      avg(score) AS score
+FROM sc
+GROUP BY sno
+HAVING score > 60;
 
 
 
 /*
-–3、查询所有同学的学号、姓名、选课数、总成绩
+3.查询所有同学的学号、姓名、选课数、总成绩
+tips：
+     多个GROUP BY参数
+     除聚集计算语句外，SELECT语句中的每一列都必须在GROUP BY子句中给出。
 */
-
+SELECT
+      sst.sno,
+      sst.sname,
+      COUNT(ssc.cno),
+      SUM(ssc.score)
+FROM sc AS ssc, student AS sst
+WHERE ssc.sno=sst.sno
+GROUP BY sst.sno,sst.sname;
 
 
 
