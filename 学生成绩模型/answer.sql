@@ -21,7 +21,6 @@ GROUP BY sno
 HAVING score > 60;
 
 
-
 /*
 3.查询所有同学的学号、姓名、选课数、总成绩
 tips：
@@ -29,29 +28,41 @@ tips：
      除聚集计算语句外，SELECT语句中的每一列都必须在GROUP BY子句中给出。
 */
 SELECT
-      sst.sno,
-      sst.sname,
-      COUNT(ssc.cno),
-      SUM(ssc.score)
+      sst.sno AS '学号',
+      sst.sname AS '姓名',
+      COUNT(ssc.cno) AS '选课数',
+      SUM(ssc.score) AS '总成绩'
 FROM sc AS ssc, student AS sst
 WHERE ssc.sno=sst.sno
 GROUP BY sst.sno,sst.sname;
 
 
+/*
+4.查询姓“李”的老师的个数；
+MySQL通配符
+%
+_
+
+*/
+SELECT COUNT(*) FROM teacher WHERE tname LIKE '李%';
 
 
 /*
-–4、查询姓“李”的老师的个数；
+5.查询没学过“叶平”老师课的同学的学号、姓名；
 */
 
+SELECT
+	*
+FROM
+	student, sc
+WHERE
+	student.sno=sc.sno;
 
-
-
-
-/*
-–5、查询没学过“叶平”老师课的同学的学号、姓名；
-*/
-
+SELECT
+	*
+FROM
+	course, teacher
+WHERE course.tno=teacher.tno AND teacher.tname='叶平';
 
 
 
