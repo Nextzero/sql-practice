@@ -50,19 +50,23 @@ SELECT COUNT(*) FROM teacher WHERE tname LIKE '李%';
 /*
 5.查询没学过“叶平”老师课的同学的学号、姓名；
 */
-????
 SELECT
-	*
+	sno AS '学号',
+	sname AS '姓名'
 FROM
-	student, sc
+	student
 WHERE
-	student.sno=sc.sno;
-
-SELECT
-	*
-FROM
-	course, teacher
-WHERE course.tno=teacher.tno AND teacher.tname='叶平';
+	sno IN 
+	(
+	SELECT
+		DISTINCT(sc.sno)
+	FROM 
+		sc,course,teacher
+	WHERE
+		sc.cno=course.cno
+		AND course.tno=teacher.tno
+		AND teacher.tname='叶平'
+	);
 
 
 /*
