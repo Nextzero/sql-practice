@@ -50,7 +50,7 @@ SELECT COUNT(*) FROM teacher WHERE tname LIKE '李%';
 /*
 5.查询没学过“叶平”老师课的同学的学号、姓名；
 */
-
+????
 SELECT
 	*
 FROM
@@ -65,64 +65,107 @@ FROM
 WHERE course.tno=teacher.tno AND teacher.tname='叶平';
 
 
-
-
 /*
-–6、查询同时学过课程1和课程2的同学的学号、姓名
+6.查询同时学过课程1和课程2的同学的学号、姓名
 */
+-- 方法一
+SELECT 
+	sst.sno AS '学号',
+	sst.sname AS '姓名'
+FROM
+	student sst, sc
+WHERE
+	sst.sno=sc.sno
+	AND sc.cno IN (1,2)
+GROUP BY sst.sno
+HAVING COUNT(sc.cno)>=2;
 
-
-
+-- 方法二
+SELECT 
+	sst.sno AS '学号',
+	sst.sname AS '姓名'
+FROM
+	student sst
+WHERE 
+	sno IN 
+	(
+	SELECT
+		a.sno
+	FROM
+		sc a, sc b
+	WHERE a.sno=b.sno AND a.cno=1 AND b.cno=2
+	)
 
 
 /*
-–7、查询学过“叶平”老师所教所有课程的所有同学的学号、姓名
+7.查询学过“叶平”老师所教所有课程的所有同学的学号、姓名
 */
-
-
-
+SELECT 
+	sst.sno AS '学号',
+	sst.sname AS '姓名'
+FROM
+	student sst, sc
+WHERE
+	sst.sno=sc.sno 
+	AND sc.cno IN
+	(SELECT c.cno FROM course c, teacher t WHERE c.tno=t.tno AND t.tname='叶平')
+GROUP BY sst.sno
+HAVING COUNT(sc.cno) >= 
+	(SELECT COUNT(*) FROM course c, teacher t WHERE c.tno=t.tno AND t.tname='叶平')
 
 
 /*
-–8、查询 课程编号1的成绩 比 课程编号2的成绩 高的所有同学的学号、姓名
+9.查询所有课程成绩小于60分的同学的学号、姓名
 */
-
-
-
+SELECT 
+	sno AS '学号',
+	sname AS '姓名'
+FROM
+	student
+WHERE
+	sno NOT IN 
+	(SELECT sno FROM sc WHERE score>=60)
+	
 
 /*
-–9、查询所有课程成绩小于60分的同学的学号、姓名
+10.查询所有课程成绩大于60分的同学的学号、姓名
 */
-
-
-
+-- 与上一题类似
 
 
 /*
-–10、查询所有课程成绩大于60分的同学的学号、姓名
+11.查询没有学全所有课的同学的学号、姓名
 */
-
-
-
+SELECT 
+	sst.sno AS '学号',
+	sst.sname AS '姓名'
+FROM
+	student sst, sc
+WHERE
+	sst.sno=sc.sno
+GROUP BY sst.sno
+HAVING COUNT(sc.cno)<
+	(SELECT COUNT(*)  FROM course);
 
 
 /*
-–11、查询没有学全所有课的同学的学号、姓名
+12.查询至少有一门课程 与 学号为1的同学所学课程 相同的同学的学号和姓名
 */
-
-
-
+SELECT 
+	DISTINCT
+	sst.sno AS '学号',
+	sst.sname AS '姓名'
+FROM 
+	student sst, sc
+WHERE 
+	sst.sno=sc.sno
+	AND sst.sno!=7
+	AND sc.cno IN 
+	(SELECT cno FROM sc WHERE sno=7)
 
 
 /*
-–12、查询至少有一门课程 与 学号为1的同学所学课程 相同的同学的学号和姓名
-*/
-
-
-
-
-/*
-–13、把“sc”表中“刘老师”所教课的成绩都更改为此课程的平均成绩
+13.把“sc”表中“刘老师”所教课的成绩都更改为此课程的平均成绩
 */
 
 
@@ -180,7 +223,7 @@ WHERE course.tno=teacher.tno AND teacher.tname='叶平';
 */
 
 
-（003），数据库（004）
+
 
 
 /*
