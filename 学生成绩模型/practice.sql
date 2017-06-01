@@ -1,138 +1,223 @@
-
+﻿
 /*
-–1、查询课程1的成绩 比 课程2的成绩 高 的所有学生的学号.
+1.查询课程1的成绩 比 课程2的成绩 高 的所有学生的学号.
+tips：子查询与左连接的效率比较
 */
-
-
-
+SELECT
+	a.*
+FROM sc AS a
+LEFT JOIN sc b ON a.sno=b.sno
+WHERE a.cno=1 AND b.cno=2 AND a.score>b.score;
 
 
 /*
-–2、查询平均成绩大于60分的同学的学号和平均成绩；
+2.查询平均成绩大于60分的同学的学号和平均成绩
 */
-
-
-
+SELECT
+      sno,
+      avg(score) AS score
+FROM sc
+GROUP BY sno
+HAVING score > 60;
 
 
 /*
-–3、查询所有同学的学号、姓名、选课数、总成绩
+3.查询所有同学的学号、姓名、选课数、总成绩
+tips：
+     多个GROUP BY参数
+     除聚集计算语句外，SELECT语句中的每一列都必须在GROUP BY子句中给出。
 */
-
-
-
+SELECT
+      sst.sno AS '学号',
+      sst.sname AS '姓名',
+      COUNT(ssc.cno) AS '选课数',
+      SUM(ssc.score) AS '总成绩'
+FROM sc AS ssc, student AS sst
+WHERE ssc.sno=sst.sno
+GROUP BY sst.sno,sst.sname;
 
 
 /*
-–4、查询姓“李”的老师的个数；
+4.查询姓“李”的老师的个数；
+MySQL通配符
+%
+_
+
 */
-
-
-
+SELECT COUNT(*) FROM teacher WHERE tname LIKE '李%';
 
 
 /*
-–5、查询没学过“叶平”老师课的同学的学号、姓名；
+5.查询没学过“叶平”老师课的同学的学号、姓名；
 */
-
-
-
+SELECT
+	sno AS '学号',
+	sname AS '姓名'
+FROM
+	student
+WHERE
+	sno IN 
+	(
+	SELECT
+		DISTINCT(sc.sno)
+	FROM 
+		sc,course,teacher
+	WHERE
+		sc.cno=course.cno
+		AND course.tno=teacher.tno
+		AND teacher.tname='叶平'
+	);
 
 
 /*
-–6、查询同时学过课程1和课程2的同学的学号、姓名
+6.查询同时学过课程1和课程2的同学的学号、姓名
 */
+-- 方法一
+SELECT 
+	sst.sno AS '学号',
+	sst.sname AS '姓名'
+FROM
+	student sst, sc
+WHERE
+	sst.sno=sc.sno
+	AND sc.cno IN (1,2)
+GROUP BY sst.sno
+HAVING COUNT(sc.cno)>=2;
 
-
-
+-- 方法二
+SELECT 
+	sst.sno AS '学号',
+	sst.sname AS '姓名'
+FROM
+	student sst
+WHERE 
+	sno IN 
+	(
+	SELECT
+		a.sno
+	FROM
+		sc a, sc b
+	WHERE a.sno=b.sno AND a.cno=1 AND b.cno=2
+	)
 
 
 /*
-–7、查询学过“叶平”老师所教所有课程的所有同学的学号、姓名
+7.查询学过“叶平”老师所教所有课程的所有同学的学号、姓名
 */
-
-
-
+SELECT 
+	sst.sno AS '学号',
+	sst.sname AS '姓名'
+FROM
+	student sst, sc
+WHERE
+	sst.sno=sc.sno 
+	AND sc.cno IN
+	(SELECT c.cno FROM course c, teacher t WHERE c.tno=t.tno AND t.tname='叶平')
+GROUP BY sst.sno
+HAVING COUNT(sc.cno) >= 
+	(SELECT COUNT(*) FROM course c, teacher t WHERE c.tno=t.tno AND t.tname='叶平')
 
 
 /*
-–8、查询 课程编号1的成绩 比 课程编号2的成绩 高的所有同学的学号、姓名
+8.查询所有课程成绩小于60分的同学的学号、姓名
 */
-
-
-
+SELECT 
+	sno AS '学号',
+	sname AS '姓名'
+FROM
+	student
+WHERE
+	sno NOT IN 
+	(SELECT sno FROM sc WHERE score>=60)
+	
 
 /*
-–9、查询所有课程成绩小于60分的同学的学号、姓名
+9.查询没有学全所有课的同学的学号、姓名
 */
-
-
-
+SELECT 
+	sst.sno AS '学号',
+	sst.sname AS '姓名'
+FROM
+	student sst, sc
+WHERE
+	sst.sno=sc.sno
+GROUP BY sst.sno
+HAVING COUNT(sc.cno) <
+	(SELECT COUNT(*)  FROM course);
 
 
 /*
-–10、查询所有课程成绩大于60分的同学的学号、姓名
+10.查询至少有一门课程 与 学号为1的同学所学课程 相同的同学的学号和姓名
 */
-
-
-
+SELECT 
+	DISTINCT
+	sst.sno AS '学号',
+	sst.sname AS '姓名'
+FROM 
+	student sst, sc
+WHERE 
+	sst.sno=sc.sno
+	AND sst.sno!=1
+	AND sc.cno IN 
+	(SELECT cno FROM sc WHERE sno=1)
 
 
 /*
-–11、查询没有学全所有课的同学的学号、姓名
+11.把“sc”表中“刘老师”所教课的成绩都更改为此课程的平均成绩
 */
-
-
-
+?????
 
 
 /*
-–12、查询至少有一门课程 与 学号为1的同学所学课程 相同的同学的学号和姓名
+12.查询和2号同学学习的课程完全相同的其他同学学号和姓名
+TAG:匹配子集,子集全等
 */
-
-
+SELECT
+	student.sno AS '学号',
+	student.sname AS '姓名',
+	sc.cno,
+	cno_2.cno
+FROM
+	student
+LEFT JOIN sc ON student.sno=sc.sno
+LEFT JOIN (SELECT cno FROM sc WHERE sno=2) cno_2 ON cno_2.cno=sc.cno
+WHERE 
+	student.sno !=2
+GROUP BY student.sno,student.sname
+HAVING COUNT(sc.cno) = (SELECT COUNT(*) FROM sc WHERE sno=2)
 
 
 /*
-–13、把“sc”表中“刘老师”所教课的成绩都更改为此课程的平均成绩
+13.向sc表中插入一些记录，这些记录要求符合以下条件：
+将没有课程3成绩同学的该成绩补齐, 其成绩取所有学生的课程2的平均成绩
+TAG:INSERT SELECT
 */
-
-
-
+INSERT INTO sc(sno, cno, score)
+SELECT DISTINCT sno, 3, (SELECT avg(score) FROM sc WHERE cno=2) AS score FROM sc WHERE sno NOT IN (SELECT sno FROM sc WHERE cno=3)
 
 
 /*
-–14、查询和2号同学学习的课程完全相同的其他同学学号和姓名
+14.按平平均分从高到低显示所有学生的如下统计报表：
+学号,企业管理,马克思,UML,数据库,物理,课程数,平均分
+TAG: 除聚集计算语句外，SELECT语句中的每一列都必须在GROUP BY子句中给出。
 */
-
-
-
-
-/*
-–15、删除学习“叶平”老师课的sc表记录
-*/
-
-
-
-
-
-/*
-–16、向sc表中插入一些记录，这些记录要求符合以下条件：
-*/
-
-
-
+SELECT 	
+	sno AS '学号',
+	MAX(case when cno = 1 then score else '-' end) AS '企业管理',
+	MAX(case when cno = 2 then score else '-' end) AS '马克思',
+	MAX(case when cno = 3 then score else '-' end) AS 'UML',
+	MAX(case when cno = 4 then score else '-' end) AS '数据库',
+	MAX(case when cno = 5 then score else '-' end) AS '物理',
+	COUNT(cno) AS '课程数',
+	AVG(score) AS '平均分'
+FROM
+	sc
+GROUP BY sno
+ORDER BY avg(score) DESC;
 
 
 /*
-–17、按平平均分从高到低显示所有学生的如下统计报表：
-*/
-
-
-
-
-/*
-–18、查询各科成绩最高分和最低分：以如下形式显示：课程号，最高分，最低分
+15.查询各科成绩最高分和最低分：以如下形式显示：课程号，最高分，最低分
 */
 
 
@@ -152,7 +237,7 @@
 */
 
 
-（003），数据库（004）
+
 
 
 /*
