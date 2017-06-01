@@ -219,17 +219,26 @@ ORDER BY avg(score) DESC;
 /*
 15.查询各科成绩最高分和最低分：以如下形式显示：课程号，最高分，最低分
 */
-
-
-
+SELECT
+	cno AS '课程号',
+	MAX(score) AS '最高分',
+	MIN(score) AS '最低分'
+FROM sc
+GROUP BY cno;
 
 
 /*
-–19、按各科平均成绩从低到高和及格率的百分数从高到低顺序
+16.按各科平均成绩从低到高和及格率的百分数从高到低顺序
+TAG:CASE WHEN
 */
-
-
-
+SELECT
+	cno AS '课程号',
+	AVG(score) AS '平均成绩',
+	100*SUM(CASE WHEN score>=60 THEN 1 ELSE 0 END) / COUNT(1) AS '及格率'
+FROM
+	sc
+GROUP BY cno
+ORDER BY 平均成绩,及格率 DESC;
 
 
 /*
