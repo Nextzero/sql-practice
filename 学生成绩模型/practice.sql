@@ -242,105 +242,97 @@ ORDER BY 平均成绩,及格率 DESC;
 
 
 /*
-–20、查询如下课程平均成绩和及格率的百分数(用”1行”显示): 企业管理（001），马克思（002），UML 
+17.查询如下课程平均成绩和及格率的百分数(用”1行”显示): 企业管理（001），马克思（002），UML 
 */
-
-
-
+SELECT
+	AVG(CASE WHEN cno = 1 THEN score END) AS 企业管理平均分,
+	100 * SUM(CASE WHEN cno = 1 AND score > 60 THEN 1 ELSE 0 END) / SUM(CASE WHEN cno = 1 THEN 1 ELSE 0 END) AS 企业管理及格率,
+	AVG(CASE WHEN cno = 2 THEN score END) AS 马克思平均分,
+	100 * SUM(CASE WHEN cno = 2 AND score > 60 THEN 1 ELSE 0 END) / SUM(CASE WHEN cno = 2 THEN 1 ELSE 0 END) AS 马克思及格率,
+	AVG(CASE WHEN cno = 3 THEN score END) AS UML平均分,
+	100 * SUM(CASE WHEN cno = 3 AND score > 60 THEN 1 ELSE 0 END) / SUM(CASE WHEN cno = 3 THEN 1 ELSE 0 END) AS UML及格率
+FROM sc
 
 
 /*
-–21、查询不同老师所教不同课程平均分, 从高到低显示
+18.查询不同老师所教不同课程平均分, 从高到低显示
 */
-
+SELECT
+	*,
+	AVG(sc.score) AS avg
+FROM
+	course,sc
+WHERE
+	course.cno=sc.cno
+GROUP BY course.tno,course.cno
+ORDER BY avg DESC;
 
 
 /*
-– 张老师 数据库 88
+19.查询如下课程成绩均在第3名到第6名之间的学生的成绩：[学生ID],[学生姓名],企业管理,马克思,UML,数据库,平均成绩
+TAG：MySQL doesn't yet support 'LIMIT & IN/ALL/ANY/SOME subquery
+TAG：使用应用代码分步查询
 */
 
 
-
+/*
+20.统计打印各科成绩,各分数段人数:课程ID,课程名称,[100-85],[85-70],[70-60],[ <60]
+TAG：SUM, CASE WHEN 
+TAG：分组+再次分组
+*/
+SELECT
+	sc.cno AS '课程ID',
+	course.cname AS '课程名称',
+	SUM(CASE WHEN score>=85 THEN 1 ELSE 0 END) AS '[85-100]',
+	SUM(CASE WHEN score<85 AND score>=70 THEN 1 ELSE 0 END) AS '[70-85]',
+	SUM(CASE WHEN score<70 AND score>=60 THEN 1 ELSE 0 END) AS '[60-70]',
+	SUM(CASE WHEN score<60 THEN 1 ELSE 0 END) AS '[<60]'
+FROM sc,course
+WHERE sc.cno=course.cno
+GROUP BY sc.cno, course.cname;
 
 
 /*
-–22、查询如下课程成绩均在第3名到第6名之间的学生的成绩：
+21.查询学生平均分及其名次
+TAG：查询增加递增序号列
+TAG：http://www.cnblogs.com/ylqmf/archive/2011/10/28/2227865.html
+TAG：使用代码排序
+*/
+SELECT
+	a.id AS '学生ID',
+	a.avg_score '平均分',
+	COUNT(*) as '名次'
+FROM
+	(
+	SELECT
+		sno AS id,
+		AVG(score) AS avg_score
+	FROM sc
+	GROUP BY sno
+	) a
+	,
+	(
+	SELECT
+		sno AS id,
+		AVG(score) AS avg_score
+	FROM sc
+	GROUP BY sno
+	) b
+WHERE
+	a.avg_score<=b.avg_score
+GROUP BY a.id
+ORDER BY 名次;
+
+
+/*
+22.查询各科成绩前三名的记录:(不考虑成绩并列情况)
+TAG：分组排序TOP N
+???
 */
 
 
-
 /*
-– [学生ID],[学生姓名],企业管理,马克思,UML,数据库,平均成绩
-*/
-
-
-
-
-
-
-/*
-–23、统计打印各科成绩,各分数段人数:课程ID,课程名称,[100-85],[85-70],[70-60],[ <60]
-*/
-
-
-
-
-
-/*
-–24、查询学生平均分及其名次
-*/
-
-
-
-
-
-
-/*
-–25、查询各科成绩前三名的记录:(不考虑成绩并列情况)
-*/
-
-
-
-
-
-
-/*
-–26、查询每门课程被选修的学生数
-*/
-
-
-
-
-
-
-/*
-–27、查询出只选修了一门课程的全部学生的学号和姓名
-*/
-
-
-
-
-
-
-/*
-–28、查询男生、女生人数
-*/
-
-
-
-
-
-
-/*
-–29、查询姓“张”的学生名单
-*/
-
-
-
-
-
-/*
-–30、查询同名同性学生名单，并统计同名人数
+23.查询同名同性学生名单，并统计同名人数
 */
 
 
