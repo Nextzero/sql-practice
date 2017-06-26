@@ -328,8 +328,21 @@ ORDER BY 名次;
 /*
 22.查询各科成绩前三名的记录:(不考虑成绩并列情况)
 TAG：分组排序TOP N
-???
 */
+-- 方法一
+-- 通过应用程序分别查询各科前三
+
+-- 方法二
+-- TAG：！！！
+SELECT
+	sc1.cno,
+	sc1.sno
+FROM
+	sc sc1
+LEFT JOIN sc sc2 ON sc1.score>=sc2.score AND sc1.cno=sc2.cno 
+GROUP BY sc1.cno,sc1.sno
+HAVING COUNT(sc2.sno)>=1-- (SELECT COUNT(*) -3 FROM student)
+ORDER BY sc1.cno,sc1.sno
 
 
 /*
