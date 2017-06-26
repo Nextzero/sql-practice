@@ -56,7 +56,7 @@ SELECT
 FROM
 	student
 WHERE
-	sno IN 
+	sno NOT IN 
 	(
 	SELECT
 		DISTINCT(sc.sno)
@@ -171,6 +171,7 @@ WHERE
 /*
 12.查询和2号同学学习的课程完全相同的其他同学学号和姓名
 TAG:匹配子集,子集全等
+????
 */
 SELECT
 	student.sno AS '学号',
@@ -332,232 +333,122 @@ TAG：分组排序TOP N
 
 
 /*
-23.查询同名同性学生名单，并统计同名人数
+23.查询同名同性别学生名单，并统计同名人数
 */
+-- 方法一
+SELECT
+	s1.sname,
+	COUNT(*)
+FROM 
+	student s1,
+	student s2
+WHERE
+	s1.sname=s2.sname
+	AND s1.ssex=s2.ssex
+	AND s1.sno > s2.sno
 
-
+-- 方法二
+SELECT 
+	sname,
+    ssex,
+    count(*)
+FROM student
+GROUP BY sname,ssex
+HAVING count(*) > 1
 
 
 
 /*
-–31、1981年出生的学生名单(注：student表中sage列的类型是datetime)
+24.1981年出生的学生名单(注：student表中sage列的类型是datetime)
+TAG：时间函数
 */
-
-
-
+SELECT
+	*
+FROM 
+	student
+WHERE
+	YEAR(sage)='1981';
 
 
 /*
-–32、查询每门课程的平均成绩，结果按平均成绩升序排列，平均成绩相同时，按课程号降序排列
+25.查询每门课程的平均成绩，结果按平均成绩升序排列，平均成绩相同时，按课程号降序排列
 */
-
-
-
-
+SELECT
+	cno,
+	avg(score) as avg
+FROM sc
+GROUP BY cno
+ORDER BY avg,cno DESC;
 
 
 /*
-–33、查询平均成绩大于80的所有学生的学号、姓名和平均成绩
+26.查询所有学生的选课情况，打印学生所选课程名称
+TAG：GROUP_CONCAT
 */
-
-
-
-
+SELECT
+	sc.sno,
+	student.sname,
+	GROUP_CONCAT(course.cname) AS '所选课程'
+FROM
+	sc,student,course
+WHERE
+	sc.sno=student.sno
+	AND sc.cno=course.cno
+GROUP BY
+	sc.sno
+ORDER BY sc.sno;
 
 
 /*
-–34、查询 数据库 分数 低于60的学生姓名和分数
+27.查询选修“叶平”老师所授课程的学生中，成绩最高的学生姓名及其成绩
 */
-
-
-
-
+SELECT
+	student.sname,
+	MAX(sc.score)
+FROM
+	sc,student,course,teacher
+WHERE
+	sc.cno=course.cno
+	AND sc.sno=student.sno
+	AND course.tno=teacher.tno
+	AND teacher.tname='叶平';
 
 
 /*
-–35、查询所有学生的选课情况
+28.查询各个课程及相应的选修人数（考虑有课程没有同学选的情况）
+TAG：CASE WHEN
 */
-
-
-
-
+SELECT
+	course.cno,
+	course.cname,
+	CASE WHEN sc.score IS NULL THEN 0 ELSE COUNT(sc.sno) END AS '选修人数'
+FROM
+	course
+LEFT JOIN sc ON course.cno=sc.cno
+GROUP BY course.cno
+ORDER BY course.cno,course.cname;
 
 
 /*
-–36、查询成绩在70分以上的学生姓名、课程名称和分数
+29.查询全部学生都选修的课程的课程号和课程名
 */
-
-
-
-
+SELECT
+	course.cno,
+	course.cname 
+FROM sc,course
+WHERE sc.cno=course.cno
+GROUP BY course.cno
+HAVING COUNT(*) = (SELECT COUNT(*) FROM student);
 
 
 /*
-–37、查询不及格的课程，并按课程号从大到小排列
+30.查询两门以上不及格课程的同学的学号及其平均成绩
+TAG：分组计算，CASE WHEN
 */
-
-
-
-
-
-
-/*
-–38、查询课程编号为3且课程成绩在80分以上的学生的学号和姓名
-*/
-
-
-
-
-
-
-/*
-–39、求选了课程的学生人数
-*/
-
-
-
-
-
-/*
-–40、查询选修“叶平”老师所授课程的学生中，成绩最高的学生姓名及其成绩
-*/
-
-
-
-
-
-
-/*
-–41、查询各个课程及相应的选修人数
-*/
-
-
-
-
-
-
-/*
-–42、查询不同课程成绩相同的学生的学号、课程号、学生成绩
-*/
-
-
-
-
-
-
-
-
-/*
-–43、查询每门课程成绩最好的前两名的学生ID
-*/
-
-
-
-
-
-
-/*
-–44、统计每门课程的学生选修人数(至少有2人选修的课程才统计)。要求输出课程号和选修人数，
-*/
-
-
-
-/*
-–查询结果按人数降序排列，若人数相同，按课程号升序排列
-*/
-
-
-
-
-
-/*
-–45、检索至少选修了5门课程的学生学号
-*/
-
-
-
-
-/*
-–46、查询全部学生都选修的课程的课程号和课程名
-*/
-
-
-
-
-
-
-/*
-–47、查询没学过“叶平”老师讲授的任一门课程的学生姓名
-*/
-
-
-
-
-
-
-/*
-–48、查询两门以上不及格课程的同学的学号及其平均成绩
-*/
-
-
-
-
-/*
-–49、检索4号课程分数大于60的同学学号，按分数降序排列
-*/
-
-
-
-
-
-/*
-–50、删除2号同学的课程1的成绩
-*/
-
-
-
-
-
-
-
-/*
-–43.查询各单科状元
-*/
-
-
-
-/*
-–46.查询最受欢迎的课程(选修学生最多的课程)
-*/
-
-
-
-/*
-–xx.查询成绩最好的课程
-*/
-
-
-
-/*
-–xx.查询最受欢迎的老师(选修学生最多的老师)
-*/
-
-
-
-/*
-–xx.查询教学质量最好的老师
-*/
-
-
-
-/*
-–xx.查询需要补考的各科学生清单*
-*/
-
-
-
-
- 
-
-
-
+SELECT
+	sno,
+	AVG(score)
+FROM
+	sc
+GROUP BY sc.sno
+HAVING SUM(CASE WHEN score<60 THEN 1 ELSE 0 END)>2;
