@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="nextzero.sql.practice.CommonMapper">
+    <insert id="insertEnterprise" parameterType="map">
+        REPLACE INTO test.user(id,type,name,phone,address,email,qq,enterprise_id,dep_id) VALUES
+        <foreach collection="list" item="item" separator=",">
+            (
+            #{item.id},
+            #{item.type},
+            #{item.name},
+            #{item.phone},
+            #{item.address},
+            #{item.email},
+            #{item.qq},
+            #{item.enterprise_id},
+            #{item.dep_id}
+            )
+        </foreach>
+    </insert>
+
+    <insert id="insertDep" parameterType="map">
+        REPLACE INTO test.user(id,type,name,phone,address,email,qq,enterprise_id,dep_id) VALUES
+        <foreach collection="list" item="item" separator=",">
+            (
+            #{item.id},
+            #{item.type},
+            #{item.name},
+            #{item.phone},
+            #{item.address},
+            #{item.email},
+            #{item.qq},
+            #{item.enterprise_id},
+            #{item.dep_id}
+            )
+        </foreach>
+    </insert>
+
+    <insert id="insertUser" parameterType="map">
+        INSERT INTO test.user(type,name,phone,address,email,qq,enterprise_id,dep_id) VALUES
+        <foreach collection="list" item="item" separator=",">
+            (
+            #{item.type},
+            #{item.name},
+            #{item.phone},
+            #{item.address},
+            #{item.email},
+            #{item.qq},
+            #{item.enterprise_id},
+            #{item.dep_id}
+            )
+        </foreach>
+    </insert>
+</mapper>
